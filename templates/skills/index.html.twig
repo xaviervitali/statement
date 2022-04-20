@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello SkillsController!{% endblock %}
+
+{% block body %}
+    {% for category in categories %}
+        <h2>{{ category.title }}</h2>
+        <ul>
+            {% for skill in category.skills %}
+                <li><dl><dt>{{skill.title}}</dt><dd>{{skill.comments}}</dd></dl></li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endblock %}
