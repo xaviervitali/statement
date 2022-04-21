@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Appreciation index{% endblock %}
+
+{% block body %}
+    <h1>Liste des Evaluations de {{ user |capitalize}}</h1>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Compétence</th>
+                <th>Niveau</th>
+                <th>Commentaire</th>
+            </tr>
+        </thead>
+        <tbody>
+                 {# Je crée la liste des dates ([date]) #}
+                {% set dates =  appreciations | map(e=>e.ajouteLe | date) |reduce((unique, item) => item in unique ? unique : unique|merge([item]), []) | sort %}
+                 {# Je boucle sur dates #}
+                {% for date in dates %}
+                    {% set class =  loop.index % 2 ? "bg-secondary" : "bg-light"%}
+                    <tr  class={{class}}><td  colspan="3"><h3 class="text-center">{{ date | date("d/m/Y", "Europe/Paris") }}</h3></td></tr>
+                    {# Je filtre les appreciations en fonction de la date #}
+                    {% set appreciationsInDate = appreciations | filter(e=>( (e.ajouteLe | date) == date)) %}
+                    {# Je crée la liste des catégories des appréciations à date #}
+                    {% set categories =  appreciationsInDate | map(e=>e.competence.categorie)  |reduce((unique, item) => item in unique ? unique : unique|merge([item]), []) | sort %}
+                {% for categorie in categories %}
+                {% set appreciationsInDateAndInCategory = appreciationsInDate | filter(e=>e.competence.categorie == categorie) %}
+                <tr><td colspan="3"><h4>{{categorie.nom}}</h4></td></tr>
+                   {% for appreciation in  appreciationsInDateAndInCategory %}
+
+                                <tr  class={{class}}>
+                                    <td>{{ appreciation.competence }}</td>
+                                    <td>{{ appreciation.niveau }}</td>
+                                    <td>{{ appreciation.commentaire }}</td>
+            
+                                </tr>
+                            {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_appreciation_new') }}">Create new</a>
+{% endblock %}

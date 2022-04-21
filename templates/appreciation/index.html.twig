@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Appreciation index{% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Liste des Evaluations de {{ user.nom |capitalize}} {{ user.prenom |capitalize}}</h1>
+    {# Je crée la liste des dates ([date]) #}
+    {% set dates =  appreciations | map(e=>e.ajouteLe | date)  |reduce((unique, item) => item in unique ? unique : unique|merge([item]), [])  %}
+        {# Je boucle sur dates #}
+    <div class="d-flex justify-content-between flex-wrap align-item-start">
+        {% for date in dates %}
+            {% set class =  loop.index % 2 ? "table-primary" : "table-secondary"%}
+
+            <div class="col-5  m-3 " >
+                <h2>le {{ date | format_datetime('full', 'none', locale='fr') }}</h2>
+                <div  class=" border overflow-auto" style="max-height: 500px">
+                    {# Je filtre les appreciations en fonction de la date #}
+                    {% set appreciationsInDate = appreciations | filter(e=>( (e.ajouteLe | date) == date)) %}
+                    {# Je crée la liste des catégories des appréciations à date #}
+                    {% set categories =  appreciationsInDate | map(e=>e.competence.categorie)  |reduce((unique, item) => item in unique ? unique : unique|merge([item]), []) | sort %}
+                    {% for categorie in categories %}
+                        <div class= " p-2 ">
+                            <h3>{{categorie.nom  | upper}}</h3>
+                
+                            <table class="table table-striped {{class}}">
+                                {% set appreciationsInDateAndInCategory = appreciationsInDate | filter(e=>e.competence.categorie == categorie) %}
+                                {% for appreciation in  appreciationsInDateAndInCategory %}
+                                    <tr>
+                                        <td class="col-4 align-middle"><h4>{{ appreciation.competence | capitalize }}</h4>{{appreciation.competence.aPropos}}</td>
+                                        <td class="col-4 text-center align-middle"><strong>{{ appreciation.niveau }}</strong></td>
+                                        <td class="col-4 align-middle">{{ appreciation.commentaire }}</td>
+
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+
+    <a href="{{ path('app_appreciation_new') }}">Create new</a>
+{% endblock %}

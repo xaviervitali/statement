@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Appreciation{% endblock %}
+
+{% block body %}
+    <h2>Créer un bilan pour {{ user.nom |capitalize}} {{ user.prenom |capitalize}}</h2>
+{{ form_start(form) }}
+    <ul>
+    {% set competences = (form.competences.vars.choices) %}
+    {% set categories = competences| map(e=>e.data.categorie )  |reduce((unique, item) => item in unique ? unique : unique|merge([item]), [])  %}
+   
+    {% for cat in categories %}
+        <h3>{{cat.nom}}</h3>
+        {% set compOfCat = form.competences.vars.choices | filter(e=>e.data.categorie == cat) %}
+        
+        {% for comp in compOfCat %}
+            {% set comp = comp.data %}
+            <h4>{{ comp.nom }}</h4>
+
+            <p>{{comp.aPropos}}</p>
+       {{ dump(form.appreciations )}}
+
+        {% endfor %}
+    {% endfor %}
+{{ form_end(form) }}
+{% endblock %}
